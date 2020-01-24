@@ -1,0 +1,6 @@
+DEBUG=on
+DB_NAME=cur_db
+DB_USER=cur_admin
+DB_PASSWORD=TfZdssz5RN5xEFkU
+DB_HOST=db
+DB_PORT=5432

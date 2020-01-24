@@ -1,0 +1,51 @@
+version: '3'
+
+services:
+    nginx:
+        build: ./build/nginx
+        ports:
+            - "80:80"
+        volumes:
+            - ./static:/static
+            - ./media:/media
+        links:
+            - app
+
+    db:
+        image: postgres:12.1
+        hostname: db
+        env_file:
+            - env_db
+        ports:
+            - "5432:5432"
+        volumes:
+            - ./postgres_data:/var/lib/postgresql/data
+    
+    app: &app
+        build: ./build/app
+        hostname: app
+        env_file:
+            - env_app
+        volumes:
+            - ./src:/code
+            - ./static:/static
+            - ./media:/media
+            - ./logs:/logs
+        depends_on:
+            - db
+            - rabbitmq
+            - worker
+
+    rabbitmq:
+        image: rabbitmq:3.8.2-alpine
+        hostname: rabbitmq
+        ports:
+            - "5672:5672"
+
+    worker:
+        <<: *app
+        command: celery -A currency worker -B -l INFO
+        ports: []
+        depends_on:
+          - rabbitmq
+          - db
